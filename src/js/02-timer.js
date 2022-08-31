@@ -11,6 +11,7 @@ const refs = {
   seconds: document.querySelector('[data-seconds]'),
 };
 let selectedTime = null;
+let timerId = null;
 const options = {
   enableTime: true,
   time_24hr: true,
@@ -31,15 +32,26 @@ class Timer {
   constructor({ onTick }) {
     this.onTick = onTick;
   }
+
   start() {
-    setInterval(() => {
+    timerId = setInterval(() => {
       const deltaTime = selectedTime - Date.now();
       const time = this.convertMs(deltaTime);
 
       this.onTick(time);
+
+      if (deltaTime <= 1000) {
+        this.timerStop();
+      }
     }, 1000);
     refs.startBtn.disabled = true;
     refs.datePicker.disabled = true;
+  }
+
+  timerStop() {
+    clearInterval(timerId);
+    refs.startBtn.disabled = false;
+    refs.datePicker.disabled = false;
   }
 
   convertMs(ms) {
